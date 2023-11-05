@@ -78,7 +78,7 @@ def getNukeTimeFromImage(imgUrl, lang):
     req = Request(imgUrl, headers={"User-Agent": "Mozilla/5.0"})
     img_bytes = urlopen(req).read()
     img = Image.open(BytesIO(img_bytes))
-    img.convert('RGB').save("Orig.jpg")
+    #img.convert('RGB').save("Orig.jpg")
     width, height = img.size
     img = img.crop((0, 5, 160, height))
     
@@ -89,7 +89,7 @@ def getNukeTimeFromImage(imgUrl, lang):
     img.paste(0, (146,0,164,height))
     
     img = img.resize((int(width*0.85), height))
-    img.convert('RGB').save("Orig_filled.jpg") 
+    #img.convert('RGB').save("Orig_filled.jpg") 
     
     text = image_to_string(img, lang=lang, config='--psm 4')
 
