@@ -27,6 +27,13 @@ from electricitymap.contrib.lib.models.event_lists import (
 from electricitymap.contrib.lib.models.events import ProductionMix
 from electricitymap.contrib.lib.types import ZoneKey
 
+PROXY_URL = "http://C1dK5XrZooUCx5RW:8YAmRQSyJ8aZPrbU_country-il@geo.iproyal.com:12321"
+
+PROXIES = {
+        'https': PROXY_URL 
+    }
+
+
 URL = "https://www.noga-iso.co.il/Umbraco/Api/Documents/GetElectricalData"
 
 IEC_URL = "www.iec.co.il"
@@ -39,9 +46,9 @@ TZ = "Asia/Jerusalem"
 
 def fetch_all() -> list:
     """Fetch info from IEC dashboard."""
-    first = get(IEC_PRODUCTION)
+    first = get(IEC_PRODUCTION, proxies=PROXIES)
     first.cookies
-    second = get(IEC_PRODUCTION, cookies=first.cookies)
+    second = get(IEC_PRODUCTION, cookies=first.cookies, proxies=PROXIES)
     soup = BeautifulSoup(second.content, "lxml")
 
     values: list = soup.find_all("span", class_="statusVal")
@@ -78,7 +85,7 @@ def fetch_price(
     if target_datetime is not None:
         raise NotImplementedError("This parser is not yet able to parse past dates")
 
-    with get(IEC_PRICE) as response:
+    with get(IEC_PRICE, proxies=PROXIES) as response:
         soup = BeautifulSoup(response.content, "lxml")
 
     price = soup.find("td", class_="ms-rteTableEvenCol-6")
@@ -108,8 +115,13 @@ def extract_price_date(soup):
 
 
 def fetch_noga_iso_data(session: Session, logger: Logger):
-    """Fetches data from Noga-ISO"""
-    response: Response = session.get(URL)
+    #response: Response = session.get(URL)
+
+    response = session.get(
+        URL,
+        proxies=PROXIES
+    )
+
     if not response.ok:
         logger.warning(
             f"IL.py",

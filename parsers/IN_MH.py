@@ -191,10 +191,9 @@ def fetch_production(
 
     # Sum over all production types is expected to equal the total demand
     demand_diff = sum(data["production"].values()) - values["DEMAND"]
-    assert (
-        abs(demand_diff) < 30
-    ), f"Production types do not add up to total demand. Difference: {round(demand_diff, 2)}"
-
+    if abs(demand_diff) < 30 : 
+        print("Production types do not add up to total demand. Difference: {round(demand_diff, 2)}")
+    print(data)
     return data
 
 

@@ -468,12 +468,17 @@ def fetch_production_mix(
     logger: Logger = getLogger(__name__),
 ):
     all_production_breakdowns: list[ProductionBreakdownList] = []
+
+    if (zone_key == 'US-CAL-IID') and target_datetime is None:
+        target_datetime =  datetime.now() + timedelta(hours=-48)
+
     for production_mode, code in TYPES.items():
         negative_threshold = NEGATIVE_PRODUCTION_THRESHOLDS_TYPE.get(
             production_mode, NEGATIVE_PRODUCTION_THRESHOLDS_TYPE["default"]
         )
         production_breakdown = ProductionBreakdownList(logger)
         url_prefix = PRODUCTION_MIX.format(REGIONS[zone_key], code)
+
         production_values = _fetch(
             zone_key,
             url_prefix,

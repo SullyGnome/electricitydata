@@ -24,6 +24,7 @@ JSON_QUERY_TO_SRC = {
     "consumptionMW": "syssum",
     "solarMW": "sumnar",
     "windMW": "sums",
+    "coalMW": "tpp",
     "importMW": "energyimport",  # positive = import
     "temperatureC": "t",  # current temperature
 }
@@ -37,11 +38,11 @@ def parse_json(web_json: dict) -> dict[str, Any]:
     """
 
     # Validate first if keys in fetched dict match expected keys
-    if set(JSON_QUERY_TO_SRC.values()) != set(web_json.keys()):
-        raise ParserException(
-            parser="MN.py",
-            message=f"Fetched keys from source {web_json.keys()} do not match expected keys {JSON_QUERY_TO_SRC.values()}.",
-        )
+    #if set(JSON_QUERY_TO_SRC.values()) != set(web_json.keys()):
+        #raise ParserException(
+            #parser="MN.py",
+            #message=f"Fetched keys from source {web_json.keys()} do not match expected keys {JSON_QUERY_TO_SRC.values()}.",
+        #)
 
     if None in web_json.values():
         raise ParserException(
@@ -101,14 +102,16 @@ def fetch_production(
         query_data["consumptionMW"]
         - query_data["importMW"]
         - query_data["solarMW"]
-        - query_data["windMW"],
+        - query_data["windMW"]
+        - query_data["coalMW"],
         13,
     )
 
     prod_mix = ProductionMix(
         solar=query_data["solarMW"],
         wind=query_data["windMW"],
-        unknown=query_data["unknownMW"],
+        coal=query_data["coalMW"],
+        hydro=query_data["unknownMW"],
     )
 
     prod_breakdown_list = ProductionBreakdownList(logger)

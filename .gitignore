@@ -17,7 +17,7 @@ web/config
 Thumbs.db
 mobileapp/*.zip
 dist
-
+data
 # Ignore top level vscode folder as it is symlinked
 #.vscode
 

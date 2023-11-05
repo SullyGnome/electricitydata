@@ -206,7 +206,7 @@ def fetch_production(
     ]
     # Make sure the table header is indeed "Térmicas (MW)" (in case the tables are re-arranged)
     thermal_production_breakdown_table_header = (
-        thermal_production_breakdown.parent.parent.parent.select("> .tile-title")[
+        thermal_production_breakdown.parent.parent.parent.select(".tile-title")[
             0
         ].string
     )

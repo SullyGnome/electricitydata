@@ -42,11 +42,18 @@ def fetch_production(
     logger: Logger = getLogger(__name__),
 ) -> dict:
     """Requests the last known production mix (in MW) of a given zone."""
-    timestamp = (
-        arrow.get(target_datetime)
-        .to("Africa/Lagos")
-        .replace(minute=0, second=0, microsecond=0)
-    )
+    if target_datetime is None :
+        timestamp = (
+            arrow.get()
+            .to("Africa/Lagos")
+            .replace(minute=0, second=0, microsecond=0)
+        )
+    else :
+        timestamp = (
+            arrow.get(target_datetime)
+            .to("Africa/Lagos")
+            .replace(minute=0, second=0, microsecond=0)
+        )
 
     # GET the landing page (HTML) and scrape some form data from it.
     session = session or Session()

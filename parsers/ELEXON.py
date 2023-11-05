@@ -37,7 +37,7 @@ ESO_DEMAND_DATA_UPDATE_ID = "177f6fa4-ae49-4182-81ea-0c6b35f26ca6"
 
 REPORT_META = {
     "B1620": {"expected_fields": 13, "skiprows": 5},
-    "FUELINST": {"expected_fields": 22, "skiprows": 1},
+    "FUELINST": {"expected_fields": 23, "skiprows": 1},
     "INTERFUELHH": {"expected_fields": 11, "skiprows": 0},
 }
 
@@ -268,6 +268,7 @@ def parse_production_FUELINST(
         lambda x: datetime_from_date_sp(x["Settlement Date"], x["Settlement Period"]),
         axis=1,
     )
+    
     return df.set_index("datetime")
 
 
@@ -466,7 +467,11 @@ def fetch_exchange(
 ):
     session = session or Session()
     try:
-        target_datetime = arrow.get(target_datetime).datetime
+        if target_datetime is None:
+            target_datetime = arrow.get().datetime
+        else: 
+            target_datetime = arrow.get(target_datetime).datetime
+        
     except arrow.parser.ParserError:
         raise ValueError(f"Invalid target_datetime: {target_datetime}")
     response = query_exchange(session, target_datetime)
@@ -484,7 +489,10 @@ def fetch_production(
 ) -> list[dict]:
     session = session or Session()
     try:
-        target_datetime = arrow.get(target_datetime).datetime
+        if target_datetime is None:
+            target_datetime = arrow.get().datetime
+        else: 
+            target_datetime = arrow.get(target_datetime).datetime
     except arrow.parser.ParserError:
         raise ValueError(f"Invalid target_datetime: {target_datetime}")
     # TODO currently resorting to FUELINST as B1620 reports 0 production in most production

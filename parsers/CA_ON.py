@@ -80,11 +80,20 @@ def _fetch_ieso_xml(
     logger: Logger,
     url_template,
 ):
-    dt = (
+    
+    if target_datetime is None:
+        dt = (
+            arrow.get()
+            .to(tz_obj)
+            .replace(hour=0, minute=0, second=0, microsecond=0)
+        )
+    else :
+        dt = (
         arrow.get(target_datetime)
         .to(tz_obj)
         .replace(hour=0, minute=0, second=0, microsecond=0)
     )
+    
 
     r = session or Session()
     url = url_template.format(YYYYMMDD=dt.format("YYYYMMDD"))

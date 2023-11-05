@@ -94,7 +94,10 @@ def fetch_exchange(
     if not session:
         session = Session()
 
-    query_datetime = arrow.get(target_datetime).to("Asia/Tokyo").strftime("%Y/%m/%d")
+    if target_datetime is None :
+        query_datetime = arrow.get().to("Asia/Tokyo").strftime("%Y/%m/%d")
+    else:
+        query_datetime = arrow.get(target_datetime).to("Asia/Tokyo").strftime("%Y/%m/%d")
 
     sorted_zone_keys = "->".join(sorted([zone_key1, zone_key2]))
     return _fetch_exchange(session, query_datetime, sorted_zone_keys)
@@ -111,7 +114,11 @@ def fetch_exchange_forecast(
     if not session:
         session = Session()
 
-    query_datetime = arrow.get(target_datetime).to("Asia/Tokyo").strftime("%Y/%m/%d")
+    if target_datetime is None :
+        query_datetime = arrow.get().to("Asia/Tokyo").strftime("%Y/%m/%d")
+    else:
+       query_datetime = arrow.get(target_datetime).to("Asia/Tokyo").strftime("%Y/%m/%d")
+    
 
     if query_datetime > arrow.get().to("Asia/Tokyo").strftime("%Y/%m/%d"):
         raise NotImplementedError(

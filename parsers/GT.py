@@ -32,7 +32,11 @@ def fetch_consumption(
     """Fetch a list of hourly consumption data, in MW, for the day of the
     requested date-time.
     """
-    date_time = arrow.get(target_datetime).to(TIMEZONE).floor("hour")
+    if target_datetime is None :
+        date_time = arrow.get().to(TIMEZONE).floor("hour")
+    else : 
+        date_time = arrow.get(target_datetime).to(TIMEZONE).floor("hour")
+    
     results = [
         {
             "consumption": row["DEM SNI"],
@@ -58,7 +62,11 @@ def fetch_production(
     """Fetch a list of hourly production data, in MW, for the day of the
     requested date-time.
     """
-    date_time = arrow.get(target_datetime).to(TIMEZONE).floor("hour")
+    if target_datetime is None :
+        date_time = arrow.get().to(TIMEZONE).floor("hour")
+    else : 
+        date_time = arrow.get(target_datetime).to(TIMEZONE).floor("hour")
+        
     results = [
         {
             "datetime": date_time.replace(hour=hour).datetime,

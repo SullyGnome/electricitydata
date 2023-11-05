@@ -27,6 +27,12 @@ EXCHANGE_TO_FLOWS = {
     ZoneKey("CA-NB->CA-PE"): ["PEI"],
 }
 
+PROXY_URL = "http://C1dK5XrZooUCx5RW:8YAmRQSyJ8aZPrbU_country-ca@geo.iproyal.com:12321"
+
+PROXIES = {
+        'https': PROXY_URL 
+    }
+
 
 def _get_new_brunswick_flows(requests_obj):
     """
@@ -37,7 +43,7 @@ def _get_new_brunswick_flows(requests_obj):
     """
 
     url = "https://tso.nbpower.com/Public/en/SystemInformation_realtime.asp"
-    response = requests_obj.get(url)
+    response = requests_obj.get(url, proxies=PROXIES)
 
     soup = BeautifulSoup(response.text, "html.parser")
 

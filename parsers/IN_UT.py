@@ -44,18 +44,25 @@ def get_datetime(soup, zone_key, logger):
     paras = soup.find_all("p")
     for para in paras:
         para_text = para.text.strip()
+        print(para_text)
         if "Last Updated:" in para_text:
-            datetime = arrow.get(para_text, "DD-MM-YYYY HH:mm:SS").replace(
-                tzinfo="Asia/Kolkata"
-            )
-            return datetime.datetime
-
-    logger.warning("Datetime could not be read from webpage.", extra={"key": zone_key})
+            try :
+                datetime = arrow.get(para_text, "DD-MM-YYYY HH:mm:SS").replace(
+                    tzinfo="Asia/Kolkata"
+                )
+                return datetime.datetime
+            except:
+                logger.warning("Datetime could not be read from webpage.", extra={"key": zone_key})
+        logger.warning("Datetime could not be read from webpage.", extra={"key": zone_key})
     return None
 
 
 def get_production_values(soup, zone_key, logger):
     cells = soup.find_all("td")
+
+    hydro_value = ""
+    gas_value = ""
+
     for cell in cells:
         cell_text = cell.text.strip()
         if cell_text == "HYDRO Total":

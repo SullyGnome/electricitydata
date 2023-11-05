@@ -13,6 +13,11 @@ from parsers.lib.validation import validate
 # please try to write PEP8 compliant code (use a linter). One of PEP8's
 # requirement is to limit your line length to 79 characters.
 
+PROXY_URL = "http://C1dK5XrZooUCx5RW:8YAmRQSyJ8aZPrbU_country-is@geo.iproyal.com:12321"
+
+PROXIES = {
+        'https': PROXY_URL 
+    }
 
 def fetch_production(
     zone_key: str = "IS",
@@ -27,8 +32,10 @@ def fetch_production(
     else:
         # WHEN HISTORICAL DATA IS NOT AVAILABLE
         raise NotImplementedError("This parser is not yet able to parse past dates")
+    
+    res = r.get(url, proxies=PROXIES)
 
-    res = r.get(url)
+    #res = r.get(url)
     assert res.status_code == 200, (
         "Exception when fetching production for "
         "{}: error when calling url={}".format(zone_key, url)

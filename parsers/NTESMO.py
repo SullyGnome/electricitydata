@@ -113,6 +113,10 @@ def get_data(
     extraction_func: Callable[[bytes], pd.DataFrame],
     logger: Logger,
 ) -> pd.DataFrame:
+    
+    if target_datetime is None:
+        target_datetime = arrow.now().shift(hours=-DELAY).to(AUSTRALIA_TZ)
+
     assert target_datetime is not None, ParserException(
         "NTESMO.py", "Target datetime cannot be None."
     )

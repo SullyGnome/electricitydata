@@ -219,7 +219,7 @@ def fetch_and_preprocess_data(
     data = get_ree_data(zone_key, session, target_datetime, tz)
     for value in data:
         # Add timezone info to time object
-        value["ts"] = datetime.fromisoformat(value["ts"]).replace(tzinfo=ZoneInfo(tz))
+        value["ts"] = datetime.fromisoformat(value["ts"].replace('A','0').replace('B','0')).replace(tzinfo=ZoneInfo(tz)) #A/B is for daylight savings perhaps?
 
         for key in value.keys():
             check_known_key(key, logger)

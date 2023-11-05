@@ -173,8 +173,11 @@ def fetch_production(
             data.append(datapoint)
 
         return data
-
-    arr_target_datetime = arrow.get(target_datetime)
+    if target_datetime is None:
+        arr_target_datetime = arrow.get()
+    else :
+        arr_target_datetime = arrow.get(target_datetime)
+    
     start = arr_target_datetime.shift(days=-1).format("YYYY-MM-DD")
     end = arr_target_datetime.format("YYYY-MM-DD")
 

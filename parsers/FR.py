@@ -72,12 +72,10 @@ def get_data(
 
     # get dataset to query
     dataset = get_dataset_from_datetime(target_datetime_in_arrow)
-
     # setup request
     r = session or Session()
     formatted_from = target_datetime_in_arrow.shift(days=-1).format("YYYY-MM-DDTHH:mm")
     formatted_to = target_datetime_in_arrow.format("YYYY-MM-DDTHH:mm")
-
     params = {
         "dataset": dataset,
         "q": f"date_heure >= {formatted_from} AND date_heure <= {formatted_to}",
@@ -106,7 +104,7 @@ def reindex_data(df_to_reindex: pd.DataFrame) -> pd.DataFrame:
     )
 
     # Average data points corresponding to the same time with 30 min granularity
-    df_reindexed = df_to_reindex.groupby("datetime_30").mean().reset_index()
+    df_reindexed = df_to_reindex.groupby("datetime_30").mean(numeric_only=True).reset_index()
     df_reindexed = df_reindexed.rename(columns={"datetime_30": "date_heure"})
     return df_reindexed
 

@@ -164,9 +164,10 @@ def fetch_production(
         raise ValueError(f"MX parser cannot fetch production for zone {zone_key}")
 
     if target_datetime is None:
-        raise ValueError(
-            "Parser only supports fetching historical production data, please specify a terget_datetime in the past"
-        )
+        target_datetime = datetime.now()
+        #raise ValueError(
+            #"Parser only supports fetching historical production data, please specify a terget_datetime in the past"
+        #)
 
     # retrieve data for the month either from the cache or fetch it
     cache_key = target_datetime.strftime("%Y-%m")

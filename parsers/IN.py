@@ -33,7 +33,7 @@ GENERATION_MAPPING = {
     "RENEWABLE GENERATION": "unknown",
 }
 INDIA_PROXY = "https://in-proxy-jfnx5klx2a-el.a.run.app"
-GENERATION_URL = "http://meritindia.in/Dashboard/BindAllIndiaMap"
+GENERATION_URL = "{proxy}/Dashboard/BindAllIndiaMap?host=http://meritindia.in"
 
 NPP_MODE_MAPPING = {
     "THER (GT)": "gas",
@@ -142,7 +142,12 @@ def get_data(session: Session | None) -> dict[str, Any]:
     """
 
     s = session or Session()
-    req: Response = s.get(GENERATION_URL)
+    req = s.get(
+        GENERATION_URL.format(proxy=INDIA_PROXY),
+        headers={"User-Agent": "Mozilla/5.0", "Accept-Encoding": ""},
+    )
+    print(GENERATION_URL.format(proxy=INDIA_PROXY))
+    #req: Response = s.get(GENERATION_URL)
 
     soup = BeautifulSoup(req.text, "lxml")
     tables = soup.findAll("table")

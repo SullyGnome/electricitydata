@@ -60,7 +60,7 @@ class SignalR:
             chat = connection.register_hub(hub)
             chat.client.on(method, self.update_res)
             connection.start()
-            connection.wait(3)
+            connection.wait(5)
             connection.close()
             return self.res
 

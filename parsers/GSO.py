@@ -60,7 +60,13 @@ def fetch_consumption(
     logger: Logger = getLogger(__name__),
 ) -> list:
     """Request the power consumption (in MW) of a given zone."""
-    date_string = arrow.get(target_datetime).to(TIMEZONE).format("DD/MM/YYYY")
+
+    if target_datetime is None :
+        date_string = arrow.get().to(TIMEZONE).format("DD/MM/YYYY")
+    else:
+        date_string = arrow.get(target_datetime).to(TIMEZONE).format("DD/MM/YYYY")
+
+    
     consumption_data = get_api_data(
         session or Session(),
         CONSUMPTION_URL,
@@ -90,7 +96,10 @@ def fetch_exchange(
     logger: Logger = getLogger(__name__),
 ) -> list:
     """Request the power exchange (in MW) between two zones."""
-    date_string = arrow.get(target_datetime).to(TIMEZONE).format("DD/MM/YYYY")
+    if target_datetime is None :
+        date_string = arrow.get().to(TIMEZONE).format("DD/MM/YYYY")
+    else:
+        date_string = arrow.get(target_datetime).to(TIMEZONE).format("DD/MM/YYYY")
 
     sorted_zone_keys = ZoneKey("->".join(sorted((zone_key1, zone_key2))))
     all_exchange_data = ExchangeList(logger)
@@ -157,7 +166,11 @@ def fetch_production(
     logger: Logger = getLogger(__name__),
 ) -> list:
     """Request the production mix (in MW) of a given zone."""
-    date_string = arrow.get(target_datetime).to(TIMEZONE).format("DD/MM/YYYY")
+    if target_datetime is None :
+        date_string = arrow.get().to(TIMEZONE).format("DD/MM/YYYY")
+    else:
+        date_string = arrow.get(target_datetime).to(TIMEZONE).format("DD/MM/YYYY")
+        
     all_production_data = ProductionBreakdownList(logger)
 
     production_data = get_api_data(
