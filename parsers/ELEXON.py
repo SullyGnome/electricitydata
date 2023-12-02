@@ -104,7 +104,7 @@ def _create_eso_historical_demand_index(session: Session) -> dict[int, str]:
     )
     data = response.json()
     pattern = re.compile(r"historic_demand_data_(?P<year>\d+)")
-    for resource in data["resources"]:
+    for resource in data["result"]["resources"]:
         match = pattern.match(resource["name"])
         if match is not None:
             index[int(match["year"])] = resource["id"]

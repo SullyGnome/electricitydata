@@ -1,0 +1,34 @@
+pip install click
+pip install ruamel.yaml
+pip install pytz
+pip install pandas
+pip install msgpack
+pip install pydantic
+pip install arrow
+pip install bs4
+pip install signalr-client-threads
+pip install pydataxm
+pip install ree
+pip install opencv-pythonp
+pip install pytesseract
+pip install imageio
+pip install demjson3
+pip install pytz
+pip install tzdata
+pip install odfpy
+pip install openpyxl
+pip install xlrd
+pip install lxml
+poetry self add poetry-dotenv-plugin
+pip install python-dotenv
+pip install --upgrade certifi
+https://github.com/UB-Mannheim/tesseract/wiki
+set pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe' in fetchall.py
+https://github.com/tesseract-ocr/tessdata Add JP lang to C:/Program Files/Tesseract-OCR/
+https://github.com/Shreeshrii/tessdata_shreetest digits_comma (Use git download, don't grab file directly)
+
+
+
+
+
+

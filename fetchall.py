@@ -1,13 +1,16 @@
 from logging import DEBUG, basicConfig
 from datafetcher import retrieveData
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import json
 import pytesseract
 from zipfile import ZipFile, ZIP_DEFLATED
 import warnings
 from concurrent.futures import ThreadPoolExecutor
+from typing import Optional
 from pathlib import Path
 from threading import Lock
+import click
+
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -29,9 +32,29 @@ class Job:
     self.success = None
     self.started = None
     self.ended = None
-    
 
-def fetchAllData():
+@click.command()
+@click.argument("method")
+def startFetching(method: str):
+    print(method)
+    if method == "bydate":
+        print("Fetching by date")
+        fetchDataForDates()
+    if method == "current":
+        print("Fetching current data")
+        fetchAllData()
+
+def fetchDataForDates():
+
+    startDateTime = datetime.fromisoformat('2022-01-01 00:00')
+    endDateTime = datetime.fromisoformat('2022-01-01 01:00')
+
+    while startDateTime < endDateTime :
+        fetchAllData(startDateTime.isoformat())
+        startDateTime = startDateTime + timedelta(seconds=60*60)
+    return     
+
+def fetchAllData(targetTime: Optional[str]):
    
     f = open(fetchersFile, "r", encoding="utf8")
     jobs = []
@@ -39,11 +62,11 @@ def fetchAllData():
     for line in f:
         if line is not None and len(line) > 10:
             jobs.append(Job(line))
-
-    batchProcess(jobs, 8)
+        
+    batchProcess(jobs, targetTime, 8)
     return ""
 
-def runFetcher(zipFileLocation, job, startTime, lock):
+def runFetcher(zipFileLocation, job, startTime, targetTime, lock):
 
     job.ran = 'true'
     job.started = datetime.now(timezone.utc)
@@ -51,15 +74,11 @@ def runFetcher(zipFileLocation, job, startTime, lock):
     args = job.command.split(" ")
     zone = args[1].strip()
     dataType = args[2].strip()
-    targetDateTime = None
 
     try:
-        res = retrieveData(zone, dataType, targetDateTime)
-        outputFileName = '' + zone + '_' + dataType + '_' + startTime.replace('+00:00','').replace(':','-') 
-        
-        if targetDateTime is not None:
-            outputFileName = '' + outputFileName + '_' + targetDateTime.isoformat(timespec="seconds").replace('+00:00','').replace(':','-').replace('T', ' ')
-        
+        res = retrieveData(zone, dataType, targetTime)
+        outputFileName = '' + zone + '_' + dataType + '_' + startTime.isoformat(timespec="seconds").replace('+00:00','').replace(':','-').replace('T', ' ')
+                
         linesToSave = str(res)
         with lock:
             with ZipFile(zipFileLocation, 'a', compression=ZIP_DEFLATED) as myzip:
@@ -76,11 +95,16 @@ def runFetcher(zipFileLocation, job, startTime, lock):
 
     return job   
 
+def batchProcess(jobs, targetTime, numThreads=8):   
 
-def batchProcess(jobs, numThreads=8):   
+    startTime = datetime.now(timezone.utc)
 
-    startTime = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    zipFileLocation = zipFileDirectory + "ElectricData_" + startTime.replace('+00:00','').replace(':','-') + ".zip" 
+    if not targetTime is None:
+        startTime = datetime.fromisoformat(targetTime)
+
+    zipFullDirectory = zipFileDirectory + str(startTime.year) + "/" + str(startTime.month) + "/"
+    Path(zipFullDirectory).mkdir(parents=True, exist_ok=True)
+    zipFileLocation = zipFullDirectory + "ElectricData_" + startTime.isoformat(timespec="seconds").replace('+00:00','').replace(':','-') + ".zip" 
 
     with ZipFile(zipFileLocation, 'a', compression=ZIP_DEFLATED) as myzip:
         myzip.writestr("StartDate.txt", datetime.now(timezone.utc).isoformat(timespec="seconds"))
@@ -90,13 +114,13 @@ def batchProcess(jobs, numThreads=8):
     with ThreadPoolExecutor(max_workers=numThreads) as executor:
         futures=[]
         for job in jobs:
-            future = executor.submit(runFetcher, zipFileLocation, job, startTime, lock)
+            future = executor.submit(runFetcher, zipFileLocation, job, startTime, targetTime, lock)
             futures.append(future)
         for f in futures:
             results.append(f.result())
     
     Path(resultsFileDirectory).mkdir(parents=True, exist_ok=True)
-    outfilePath = resultsFileDirectory + 'Results_' + startTime.replace('+00:00','').replace(':','-').replace('T', ' ') + ".txt"
+    outfilePath = resultsFileDirectory + 'Results_' + startTime.isoformat(timespec="seconds").replace('+00:00','').replace(':','-').replace('T', ' ') + ".txt"
 
     with open(r''+outfilePath, 'w') as fp:
         fp.write("Command\tRan\tSuccess\tStarted\tEnded\tTime\n")
@@ -121,4 +145,4 @@ def batchProcess(jobs, numThreads=8):
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
-    print(fetchAllData())
+    print(startFetching())
