@@ -3,15 +3,15 @@
 """Parser for all of India"""
 
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from logging import Logger, getLogger
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import arrow
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
-from pytz import UTC
 from requests import Response, Session
 
 from electricitymap.contrib.lib.models.event_lists import (
@@ -22,7 +22,7 @@ from electricitymap.contrib.lib.models.events import ProductionMix
 from electricitymap.contrib.lib.types import ZoneKey
 from parsers.lib.exceptions import ParserException
 
-IN_TZ = "Asia/Kolkata"
+IN_TZ = ZoneInfo("Asia/Kolkata")
 START_DATE_RENEWABLE_DATA = arrow.get("2020-12-17", tzinfo=IN_TZ).datetime
 CONVERSION_GWH_MW = 0.024
 GENERATION_MAPPING = {
@@ -191,7 +191,7 @@ def fetch_live_production(
 
     data = {
         "zoneKey": zone_key,
-        "datetime": IN_TZ.localize(datetime.now()),
+        "datetime": datetime.now(tz=IN_TZ),
         "production": mapped_production,
         "storage": {},
         "source": "meritindia.in",
@@ -230,11 +230,11 @@ def fetch_consumption_from_vidyutpravah(
                 .split()[0]
                 .replace(",", "")
             )
-        except:
+        except Exception as e:
             raise ParserException(
                 parser="IN.py",
                 message=f"{target_datetime}: consumption data is not available for {zone_key}",
-            )
+            ) from e
         total_consumption += state_consumption
 
     if total_consumption == 0:
@@ -246,7 +246,7 @@ def fetch_consumption_from_vidyutpravah(
     consumption_list = TotalConsumptionList(logger=logger)
     consumption_list.append(
         zoneKey=ZoneKey(zone_key),
-        datetime=arrow.now(tz=IN_TZ).datetime,
+        datetime=datetime.now(tz=IN_TZ),
         consumption=total_consumption,
         source="vidyupravah.in",
     )
@@ -289,7 +289,7 @@ def fetch_consumption_from_meritindia(
     consumption_list = TotalConsumptionList(logger=logger)
     consumption_list.append(
         zoneKey=ZoneKey(zone_key),
-        datetime=arrow.now(tz=IN_TZ).datetime,
+        datetime=datetime.now(tz=IN_TZ),
         consumption=total_consumption,
         source="meritindia.in",
     )
@@ -431,7 +431,7 @@ def fetch_production(
     logger: Logger = getLogger(__name__),
 ) -> list[dict[str, Any]]:
     if target_datetime is None:
-        target_datetime = get_start_of_day(dt=UTC.localize(datetime.now()))
+        target_datetime = get_start_of_day(dt=datetime.now(timezone.utc))
     else:
         target_datetime = get_start_of_day(dt=target_datetime)
         if target_datetime < START_DATE_RENEWABLE_DATA:
@@ -462,7 +462,7 @@ def fetch_production(
                 zone_key=zone_key,
                 logger=logger,
             )
-        except:
+        except Exception:
             logger.warning(
                 f"{zone_key}: production not available for {_target_datetime}"
             )
